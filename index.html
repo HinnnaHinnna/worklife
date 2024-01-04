@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>작업의 수명</title>
+
+    <style>
+        body {
+          margin: 0;
+          overflow-y: hidden; /* 가로 스크롤을 감춤 */
+        }
+        
+        .grid {
+            display:grid;
+            grid-template-columns: repeat(100, 1fr);
+            grid-template-rows: repeat(20, 40px); 
+            gap: 0px;
+            overflow-y: hidden; /* 가로 스크롤을 감춤 */
+        }
+
+        .cell {
+            width: 1fr;
+            height: 15px;
+            background-color: rgb(255, 255, 255);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: calc(1px + (70vw - 320px) / 100);
+            color: white;
+            overflow: hidden;
+            font-family: 'wanted-sans';
+          }
+
+          /* Font import using a corrected format */
+          @import url("https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css");
+
+    </style>
+</head>
+<body>
+      <div class="grid" id="grid">
+        <!-- Initial cell with grid-spanning properties -->
+        <div class="cell" style="grid-column: 1 / 101; grid-row: 1 / 61;"></div>
+      </div>
+   
+    <script>
+        const grid = document.getElementById('grid');
+        let isFirstClick = true;
+
+        let cell;
+
+        if (cell) {
+          cell.style.backgroundColor = 'white';
+          cell.style.color = 'white';
+        }
+
+        // 클릭한 칸과 주변 칸들의 색상 변경 함수
+        function changeColor(cell, seconds) {
+            // 클릭한 칸의 색상 변경 (주어진 시간 유지)
+            cell.style.backgroundColor = 'white'; // 셀 배경색
+            cell.style.color = 'white'; // 글자 색을 흰색으로 설정
+            setTimeout(() => {
+                // 기준이 된 칸은 셀 배경색으로 유지(1단계)
+                cell.style.backgroundColor = 'white';
+                cell.style.color = 'white'; // 글자 색을 흰색으로 설정
+
+                // 주변 칸들의 색상 변경 (시간을 조절하여 적용)
+                const [i, j] = getCellPosition(cell);
+                changeAdjacentCellsColor(i, j, seconds + Math.random() * 0.01);
+
+            }, seconds * 10);
+        }
+
+
+
+        // 주변 칸들의 색상 변경 함수
+        function changeAdjacentCellsColor(row, col, seconds) {
+            const adjacentCells = [
+                [row - 1, col], // 위쪽 칸
+                [row + 1, col], // 아래쪽 칸
+                [row, col - 1], // 왼쪽 칸
+                [row, col + 1], // 오른쪽 칸
+                [row - 1, col - 1], // 왼쪽 위 칸
+                [row - 1, col + 1], // 오른쪽 위 칸
+                [row + 1, col - 1], // 왼쪽 아래 칸
+                [row + 1, col + 1], // 오른쪽 아래 칸
+            ];
+
+            // 주변 칸들 중 랜덤으로 선택
+            const randomIndex = Math.floor(Math.random() * adjacentCells.length);
+            const [i, j] = adjacentCells[randomIndex];
+
+            // 선택한 칸의 색상 변경 (주어진 시간 유지)(2단계)
+            const cell = grid.children[i *100 + j];
+            cell.style.backgroundColor = 'rgb(255, 0, 0)'; // 배경색
+            cell.style.color = 'rgb(255, 0, 0)'; 
+            setTimeout(() => {
+                // 기준이 된 칸은 흰색으로 유지(3단계)
+                cell.style.backgroundColor = 'white';
+                cell.style.color = 'white';
+
+                // 주변 칸들의 색상 변경 (시간을 조절하여 적용-속도조절)
+                changeAdjacentCellsColor(i, j, seconds + Math.random() * 0.1);
+            }, seconds * 10);
+        }
+
+        // 격자 생성 및 초기화
+        function initializeGrid() {
+        grid.innerHTML = ''; // 기존의 격자를 비웁니다.
+
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 100; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.addEventListener('click', () => {
+                        // 클릭한 칸과 주변 칸들의 색상 변경
+                        if (isFirstClick) {
+                            changeColor(cell, 10); // 최초 클릭 칸
+                            isFirstClick = false;
+                        } else {
+                            const randomDuration = getRandomDuration();
+                            changeColor(cell, randomDuration); // 나머지 칸들
+                        }
+                    });
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // 초기 격자 생성
+        initializeGrid();
+
+        // 셀의 위치를 가져오는 함수 - 
+        function getCellPosition(cell) {
+            const index = Array.from(grid.children).indexOf(cell);
+            return [Math.floor(index / 10), index % 100]; //인덱스 나누기 수가 작아질수록 랜덤하게 찍힘
+        }
+
+        // 랜덤한 유지 시간을 생성하는 함수 (1초에서 10초 사이)
+        function getRandomDuration() {
+            return Math.floor(Math.random() * 0.1) + 1;
+        }
+
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'ko-KR';
+
+        // 음성 인식 설정
+        recognition.continuous = true; // 계속해서 음성을 인식하도록 설정
+        recognition.interimResults = true; // 중간 결과를 받도록 설정
+
+        // 음성 인식 결과 이벤트 핸들러
+        recognition.onresult = function(event) {
+            const interimTranscript = event.results[0][0].transcript;
+            const finalTranscript = event.results[0].isFinal ? interimTranscript : '';
+
+            // 각 글자를 처리
+            for (let i = 0; i < finalTranscript.length; i++) {
+                const char = finalTranscript.charAt(i);
+
+                // 클릭한 칸과 주변 칸들의 색상 변경
+                const randomIndex = Math.floor(Math.random() * grid.children.length);
+                const cell = grid.children[randomIndex];
+                if (isFirstClick) {
+                    changeColor(cell, 10); // 최초 클릭 칸
+                    isFirstClick = false;
+                } else {
+                    const randomDuration = getRandomDuration();
+                    changeColor(cell, randomDuration); // 나머지 칸들
+                }
+            }
+        };
+
+        // 음성 인식 오류 처리
+        recognition.onerror = (event) => {
+            console.error('음성 인식 오류:', event.error);
+        };
+
+        // 음성 인식 시작
+        recognition.start();
+
+        // 마이크 항상 켜짐
+        recognition.onend = () => {
+            recognition.start();
+        };
+
+        // 다른 소음도 인식하도록 설정
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 10;
+        recognition.lang = 'ko-KR';
+        recognition.audioStartTimeout = 0;
+        recognition.audioEndTimeout = 0;
+
+        // 현재 마우스의 위치를 저장하기 위한 변수
+        let mouseX, mouseY;
+
+        // 마우스 이벤트 리스너 등록
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        });
+
+        // 특정 칸의 글자
+        function shuffleSpecificCharacters() {
+            const specificCharacters = [
+                { rowStart: 6, rowEnd: 6, columnStart: 80, columnEnd: 90, text: '<작업의 수명>' },
+                { rowStart: 7, rowEnd: 7, columnStart: 20, columnEnd: 90, text: ' ' },
+                { rowStart: 8, rowEnd: 8, columnStart: 20, columnEnd: 90, text: ' ' },
+                { rowStart: 9, rowEnd: 9, columnStart: 30, columnEnd: 90, text: '작업에 대한 캡션은 최대한 자세히 쓴다.' },
+                { rowStart: 10, rowEnd: 10, columnStart: 30, columnEnd: 90, text: ' ' },
+                { rowStart: 11, rowEnd: 11, columnStart: 30, columnEnd: 90, text: '시간이 지날수록 작업의 처음 의도가 희미해지기 때문이다.' },
+                { rowStart: 12, rowEnd: 12, columnStart: 30, columnEnd: 90, text: ' ' },
+                { rowStart: 13, rowEnd: 13, columnStart: 30, columnEnd: 90, text: '글로 정리해 둔 기억은 시간과 말에 의해 마모된다.' },
+                { rowStart: 14, rowEnd: 14, columnStart: 30, columnEnd: 90, text: ' ' },
+                { rowStart: 15, rowEnd: 15, columnStart: 30, columnEnd: 90, text: '그럴 때면 수명에 대해 생각한다.' },
+                { rowStart: 16, rowEnd: 16, columnStart: 30, columnEnd: 90, text: ' ' },
+                { rowStart: 17, rowEnd: 17, columnStart: 30, columnEnd: 90, text: '이 작업의 수명은 언제까지일까?' },
+                { rowStart: 18, rowEnd: 18, columnStart: 30, columnEnd: 90, text: ' ' },
+                { rowStart: 19, rowEnd: 19, columnStart: 30, columnEnd: 90, text: '제 기능을 다하지 못하면 혹은 내 기억에서 흐릿해지면 사라지는 걸까?' },
+                { rowStart: 20, rowEnd: 20, columnStart: 30, columnEnd: 90, text: ' ' },
+                { rowStart: 21, rowEnd: 21, columnStart: 30, columnEnd: 90, text: '' },
+                { rowStart: 22, rowEnd: 22, columnStart: 30, columnEnd: 90, text: ' ' },
+                { rowStart: 23, rowEnd: 23, columnStart: 30, columnEnd: 90, text: '하지만 작업의 유한함 때문에 생(生)이 발생한다.' },                
+                { rowStart: 45, rowEnd: 45, columnStart: 80, columnEnd: 100, text: '논문 pp.17 발췌' },
+            
+            ];
+
+            // 배열을 랜덤하게 섞기
+            for (let i = specificCharacters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [specificCharacters[i], specificCharacters[j]] = [specificCharacters[j], specificCharacters[i]];
+            }
+
+            specificCharacters.forEach(characterInfo => {
+                const { rowStart, rowEnd, columnStart, columnEnd, text } = characterInfo;
+                for (let row = rowStart; row <= rowEnd; row++) {
+                    for (let column = columnStart; column <= columnEnd; column++) {
+                        const specificCell = grid.children[row * 100 + column];
+                        specificCell.textContent = text[column - columnStart];
+                        specificCell.style.backgroundColor = 'rgb(255, 255, 255)';
+                        specificCell.style.color = 'black';
+                    }
+                }
+            });
+        }
+
+        // 초기에 한 번 특정 칸의 글자와 배경색을 랜덤으로 섞음
+        shuffleSpecificCharacters();
+
+        // 흰색으로 셀이 변하면 이후에는 리셋되지 않도록 설정
+        grid.addEventListener('click', (event) => {
+            const cell = event.target;
+            if (cell.style.backgroundColor === 'white') {
+                cell.style.backgroundColor = 'white';
+                cell.style.color = 'white';
+            } else {
+                changeColor(cell, 1);
+            }
+        });
+
+        // separation
+        const separationDistance = 500;
+
+        function calculateSeparation(cell) {
+            const neighbors = getNeighbors(cell);
+            const distances = neighbors.map(neighbor => getDistance(cell, neighbor));
+
+            // 가장 가까운 셀과의 거리가 separationDistance보다 작으면 멀어지도록 합니다.
+            const closestNeighbor = neighbors[distances.indexOf(Math.min(distances))];
+            if (getDistance(cell, closestNeighbor) < separationDistance) {
+                const direction = getDirection(cell, closestNeighbor);
+                changeColor(cell, direction, 0);
+            }
+        }
+
+        // alignment
+        const alignmentStrength = 100;
+
+        function calculateAlignment(cell) {
+            const neighbors = getNeighbors(cell);
+            const directions = neighbors.map(neighbor => getDirection(cell, neighbor));
+
+            // 주변 셀들의 방향의 평균을 구합니다.
+            const averageDirection = directions.reduce((sum, direction) => sum + direction, 0) / neighbors.length;
+
+            // 평균 방향에 대한 압력을 추가합니다.
+            const averageDirectionPressure = averageDirection * alignmentStrength;
+
+            // 평균 방향으로 이동하도록 합니다.
+            changeColor(cell, averageDirection, alignmentStrength + averageDirectionPressure);
+        }
+
+        // cohesion
+        const cohesionStrength = 1;
+
+        function calculateCohesion(cell) {
+            const neighbors = getNeighbors(cell);
+            const positions = neighbors.map(neighbor => neighbor.getBoundingClientRect().center);
+
+            // 주변 셀들의 위치의 평균을 구합니다.
+            const averagePosition = positions.reduce((sum, position) => sum + position, 100) / neighbors.length;
+
+            // 평균 위치로 이동하도록 합니다.
+            changeColor(cell, averagePosition, cohesionStrength);
+
+            // 셀이 많이 생기는 쪽으로 셀이 더 많이 생기도록 합니다.
+            const neighborsCount = neighbors.length;
+            if (neighborsCount > 20) {
+                changeColor(cell, averagePosition, cohesionStrength * neighborsCount);
+            }
+        }
+        recognition.onstart = () => {
+};
+    </script>
+</body>
+</html>
