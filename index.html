@@ -14,7 +14,7 @@
         .grid {
             display:grid;
             grid-template-columns: repeat(70, 1fr);
-            grid-template-rows: repeat(20, 40px); 
+            grid-template-rows: repeat(20, 20px); 
             gap: 0px;
             overflow-y: hidden; /* 가로 스크롤을 감춤 */
         }
@@ -27,7 +27,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: calc(3px + (70vw - 320px) / 100);
+            font-size: calc(5px + (70vw - 320px) / 100);
             color: white;
             overflow: hidden;
             font-family: 'wanted-sans';
@@ -205,12 +205,10 @@
         // 특정 칸의 글자
         function shuffleSpecificCharacters() {
             const specificCharacters = [
-                { rowStart: 6, rowEnd: 6, columnStart: 80, columnEnd: 90, text: '<작업의 수명>' },
-                { rowStart: 7, rowEnd: 7, columnStart: 20, columnEnd: 90, text: ' ' },
-                { rowStart: 8, rowEnd: 8, columnStart: 20, columnEnd: 90, text: ' ' },
-                { rowStart: 9, rowEnd: 9, columnStart: 30, columnEnd: 90, text: '작업에 대한 캡션은 최대한 자세히 쓴다.' },
-                { rowStart: 10, rowEnd: 10, columnStart: 30, columnEnd: 90, text: ' ' },
-                { rowStart: 11, rowEnd: 11, columnStart: 30, columnEnd: 90, text: '시간이 지날수록 작업의 처음 의도가 희미해지기 때문이다.' },
+                { rowStart: 2, rowEnd: 2, columnStart: 50, columnEnd: 70, text: '<작업의 수명>' },
+                { rowStart: 6, rowEnd: 6, columnStart: 20, columnEnd: 70, text: '작업에 대한 캡션은 최대한 자세히 쓴다.' },
+                { rowStart: 10, rowEnd: 10, columnStart: 20, columnEnd: 70, text: ' ' },
+                { rowStart: 11, rowEnd: 11, columnStart: 20, columnEnd: 70, text: '시간이 지날수록 작업의 처음 의도가 희미해지기 때문이다.' },
                 { rowStart: 12, rowEnd: 12, columnStart: 30, columnEnd: 90, text: ' ' },
                 { rowStart: 13, rowEnd: 13, columnStart: 30, columnEnd: 90, text: '글로 정리해 둔 기억은 시간과 말에 의해 마모된다.' },
                 { rowStart: 14, rowEnd: 14, columnStart: 30, columnEnd: 90, text: ' ' },
@@ -223,7 +221,7 @@
                 { rowStart: 21, rowEnd: 21, columnStart: 30, columnEnd: 90, text: '' },
                 { rowStart: 22, rowEnd: 22, columnStart: 30, columnEnd: 90, text: ' ' },
                 { rowStart: 23, rowEnd: 23, columnStart: 30, columnEnd: 90, text: '하지만 작업의 유한함 때문에 생(生)이 발생한다.' },                
-                { rowStart: 45, rowEnd: 45, columnStart: 80, columnEnd: 100, text: '논문 pp.17 발췌' },
+                { rowStart: 30, rowEnd: 30, columnStart: 80, columnEnd: 90, text: '논문 pp.17 발췌' },
             
             ];
 
