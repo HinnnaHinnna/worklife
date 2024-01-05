@@ -10,11 +10,11 @@
           margin: 0;
           overflow-y: hidden; /* 가로 스크롤을 감춤 */
         }
-        
+
         .grid {
             display:grid;
-            grid-template-columns: repeat(70, 1fr);
-            grid-template-rows: repeat(20, 20px); 
+            grid-template-columns: repeat(75, 1fr);
+            grid-template-rows: repeat(20, 40px); 
             gap: 0px;
             overflow-y: hidden; /* 가로 스크롤을 감춤 */
         }
@@ -43,7 +43,7 @@
         <!-- Initial cell with grid-spanning properties -->
         <div class="cell" style="grid-column: 1 / 101; grid-row: 1 / 61;"></div>
       </div>
-   
+
     <script>
         const grid = document.getElementById('grid');
         let isFirstClick = true;
@@ -93,16 +93,16 @@
 
             // 선택한 칸의 색상 변경 (주어진 시간 유지)(2단계)
             const cell = grid.children[i *100 + j];
-            cell.style.backgroundColor = 'rgb(255, 0, 0)'; // 배경색
-            cell.style.color = 'rgb(255, 0, 0)'; 
+            cell.style.backgroundColor = 'rgb(255, 0, 250)'; // 배경색
+            cell.style.color = 'rgb(255, 0, 250)'; 
             setTimeout(() => {
                 // 기준이 된 칸은 흰색으로 유지(3단계)
                 cell.style.backgroundColor = 'white';
                 cell.style.color = 'white';
 
                 // 주변 칸들의 색상 변경 (시간을 조절하여 적용-속도조절)
-                changeAdjacentCellsColor(i, j, seconds + Math.random() * 0.1);
-            }, seconds * 10);
+                changeAdjacentCellsColor(i, j, seconds + Math.random() * 1);
+            }, seconds * 20);
         }
 
         // 격자 생성 및 초기화
@@ -205,24 +205,16 @@
         // 특정 칸의 글자
         function shuffleSpecificCharacters() {
             const specificCharacters = [
-                { rowStart: 2, rowEnd: 2, columnStart: 50, columnEnd: 70, text: '<작업의 수명>' },
-                { rowStart: 6, rowEnd: 6, columnStart: 20, columnEnd: 70, text: '작업에 대한 캡션은 최대한 자세히 쓴다.' },
-                { rowStart: 10, rowEnd: 10, columnStart: 20, columnEnd: 70, text: ' ' },
-                { rowStart: 11, rowEnd: 11, columnStart: 20, columnEnd: 70, text: '시간이 지날수록 작업의 처음 의도가 희미해지기 때문이다.' },
-                { rowStart: 12, rowEnd: 12, columnStart: 30, columnEnd: 90, text: ' ' },
-                { rowStart: 13, rowEnd: 13, columnStart: 30, columnEnd: 90, text: '글로 정리해 둔 기억은 시간과 말에 의해 마모된다.' },
-                { rowStart: 14, rowEnd: 14, columnStart: 30, columnEnd: 90, text: ' ' },
-                { rowStart: 15, rowEnd: 15, columnStart: 30, columnEnd: 90, text: '그럴 때면 수명에 대해 생각한다.' },
-                { rowStart: 16, rowEnd: 16, columnStart: 30, columnEnd: 90, text: ' ' },
-                { rowStart: 17, rowEnd: 17, columnStart: 30, columnEnd: 90, text: '이 작업의 수명은 언제까지일까?' },
-                { rowStart: 18, rowEnd: 18, columnStart: 30, columnEnd: 90, text: ' ' },
-                { rowStart: 19, rowEnd: 19, columnStart: 30, columnEnd: 90, text: '제 기능을 다하지 못하면 혹은 내 기억에서 흐릿해지면 사라지는 걸까?' },
-                { rowStart: 20, rowEnd: 20, columnStart: 30, columnEnd: 90, text: ' ' },
-                { rowStart: 21, rowEnd: 21, columnStart: 30, columnEnd: 90, text: '' },
-                { rowStart: 22, rowEnd: 22, columnStart: 30, columnEnd: 90, text: ' ' },
-                { rowStart: 23, rowEnd: 23, columnStart: 30, columnEnd: 90, text: '하지만 작업의 유한함 때문에 생(生)이 발생한다.' },                
-                { rowStart: 30, rowEnd: 30, columnStart: 80, columnEnd: 90, text: '논문 pp.17 발췌' },
-            
+                { rowStart: 1, rowEnd: 1, columnStart: 20, columnEnd: 90, text: '<작업의 수명>' },
+                { rowStart: 4, rowEnd: 4, columnStart: 20, columnEnd: 90, text: '작업에 대한 캡션은 최대한 자세히 쓴다.' },
+                { rowStart: 5, rowEnd: 5, columnStart: 30, columnEnd: 90, text: '시간이 지날수록 작업의 처음 의도가 희미해지기 때문이다.' },
+                { rowStart: 7, rowEnd: 7, columnStart: 30, columnEnd: 90, text: '글로 정리해 둔 기억은 시간과 말에 의해 마모된다.' },
+                { rowStart: 9, rowEnd: 9, columnStart: 30, columnEnd: 90, text: '그럴 때면 수명에 대해 생각한다.' },
+                { rowStart: 11, rowEnd: 11, columnStart: 30, columnEnd: 90, text: '이 작업의 수명은 언제까지일까?' },
+                { rowStart: 13, rowEnd: 13, columnStart: 30, columnEnd: 90, text: '제 기능을 다하지 못하면 혹은 내 기억에서 흐릿해지면 사라지는 걸까?' },
+                { rowStart: 15, rowEnd: 15, columnStart: 30, columnEnd: 90, text: '하지만 작업의 유한함 때문에 생(生)이 발생한다.' },                
+                { rowStart: 18, rowEnd: 18, columnStart: 80, columnEnd: 100, text: '논문 pp.17 발췌' },
+
             ];
 
             // 배열을 랜덤하게 섞기
