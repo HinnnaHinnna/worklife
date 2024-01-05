@@ -39,72 +39,66 @@
 
     </style>
 </head>
-<body>
-      <div class="grid" id="grid">
-        <!-- Initial cell with grid-spanning properties -->
-        <div class="cell" style="grid-column: 1 / 101; grid-row: 1 / 61;"></div>
-      </div>
-
+  <body>
+    <div class="grid" id="grid">
+    <!-- Initial cell with grid-spanning properties -->
+    <div class="cell" style="grid-column: 1 / 75; grid-row:1 / 60;"></div>
+    </div>
+    
     <script>
-        const grid = document.getElementById('grid');
-        let isFirstClick = true;
-
-        let cell;
-
-        if (cell) {
-          cell.style.backgroundColor = 'white';
-          cell.style.color = 'white';
-        }
-
-        // 클릭한 칸과 주변 칸들의 색상 변경 함수
-        function changeColor(cell, seconds) {
-            // 클릭한 칸의 색상 변경 (주어진 시간 유지)
-            cell.style.backgroundColor = 'white'; // 셀 배경색
+    let cell=null;
+    const grid = document.getElementById('grid');
+    let isFirstClick = true;
+    
+    // 클릭한 칸과 주변 칸들의 색상 변경 함수
+    function changeColor(cell, seconds) {
+        // 클릭한 칸의 색상 변경 (주어진 시간 유지)
+        cell.style.backgroundColor = 'white'; // 셀 배경색
+        cell.style.color = 'white'; // 글자 색을 흰색으로 설정
+        setTimeout(() => {
+            // 기준이 된 칸은 셀 배경색으로 유지(1단계)
+            cell.style.backgroundColor = 'rgb(255, 255,255)';
             cell.style.color = 'white'; // 글자 색을 흰색으로 설정
-            setTimeout(() => {
-                // 기준이 된 칸은 셀 배경색으로 유지(1단계)
-                cell.style.backgroundColor = 'white';
-                cell.style.color = 'white'; // 글자 색을 흰색으로 설정
-
-                // 주변 칸들의 색상 변경 (시간을 조절하여 적용)
-                const [i, j] = getCellPosition(cell);
-                changeAdjacentCellsColor(i, j, seconds + Math.random() * 0.01);
-
-            }, seconds * 10);
-        }
-
-
-
-        // 주변 칸들의 색상 변경 함수
-        function changeAdjacentCellsColor(row, col, seconds) {
-            const adjacentCells = [
-                [row - 1, col], // 위쪽 칸
-                [row + 1, col], // 아래쪽 칸
-                [row, col - 1], // 왼쪽 칸
-                [row, col + 1], // 오른쪽 칸
-                [row - 1, col - 1], // 왼쪽 위 칸
-                [row - 1, col + 1], // 오른쪽 위 칸
-                [row + 1, col - 1], // 왼쪽 아래 칸
-                [row + 1, col + 1], // 오른쪽 아래 칸
-            ];
-
-            // 주변 칸들 중 랜덤으로 선택
-            const randomIndex = Math.floor(Math.random() * adjacentCells.length);
-            const [i, j] = adjacentCells[randomIndex];
-
-            // 선택한 칸의 색상 변경 (주어진 시간 유지)(2단계)
-            const cell = grid.children[i *100 + j];
-            cell.style.backgroundColor = 'rgb(255, 0, 250)'; // 배경색
-            cell.style.color = 'rgb(255, 0, 250)'; 
-            setTimeout(() => {
-                // 기준이 된 칸은 흰색으로 유지(3단계)
-                cell.style.backgroundColor = 'white';
-                cell.style.color = 'white';
-
-                // 주변 칸들의 색상 변경 (시간을 조절하여 적용-속도조절)
-                changeAdjacentCellsColor(i, j, seconds + Math.random() * 1);
-            }, seconds * 20);
-        }
+    
+            // 주변 칸들의 색상 변경 (시간을 조절하여 적용)
+            const [i, j] = getCellPosition(cell);
+            changeAdjacentCellsColor(i, j, seconds + Math.random() * 0.01);
+    
+        }, seconds * 10);
+    }
+    
+    
+    
+    // 주변 칸들의 색상 변경 함수
+    function changeAdjacentCellsColor(row,col, seconds) {
+      const adjacentCells = [
+        [row -1, col], // 위쪽 칸
+        [row +1, col], // 아래쪽 칸
+        [row, col -1], // 왼쪽 칸
+        [row, col +1], // 오른쪽 칸
+        [row -1, col-1], // 왼쪽 위 칸
+        [row -1, col+1], // 오른쪽 위 칸
+        [row +1, col-1], // 왼쪽 아래 칸
+        [row +1, col+1], // 오른쪽 아래 칸
+      ];
+    
+      // 주변 칸들 중 랜덤으로 선택
+      const randomIndex = Math.floor(Math.random() * adjacentCells.length);
+      const [i, j] = adjacentCells[randomIndex];
+    
+      // 선택한 칸의 색상 변경 (주어진 시간 유지)(2단계)
+      const cell = grid.children[i *100 + j];
+      cell.style.backgroundColor ='rgb(0, 255, 255)'; // 배경색
+      cell.style.color = 'rgb(0, 255, 255)'; // 글자 색
+      setTimeout(() => {
+        // 기준이 된 칸은 흰색으로 유지(3단계)
+        cell.style.backgroundColor = 'rgb(255,0,255)';
+        cell.style.color = 'rgb(255,0,255)';
+    
+        // 주변 칸들의 색상 변경 (시간을 조절하여 적용-속도조절)
+        changeAdjacentCellsColor(i, j, 1);
+      }, seconds *10);
+    }
 
         // 격자 생성 및 초기화
         function initializeGrid() {
@@ -191,30 +185,21 @@
         recognition.interimResults = true;
         recognition.maxAlternatives = 10;
         recognition.lang = 'ko-KR';
-        recognition.audioStartTimeout = 0;
+        recognition.audioStartTimeout = 0
         recognition.audioEndTimeout = 0;
-
-        // 현재 마우스의 위치를 저장하기 위한 변수
-        let mouseX, mouseY;
-
-        // 마우스 이벤트 리스너 등록
-        document.addEventListener('mousemove', (event) => {
-            mouseX = event.clientX;
-            mouseY = event.clientY;
-        });
 
         // 특정 칸의 글자
         function shuffleSpecificCharacters() {
             const specificCharacters = [
-                { rowStart: 1, rowEnd: 1, columnStart: 20, columnEnd: 90, text: '<작업의 수명>' },
-                { rowStart: 4, rowEnd: 4, columnStart: 20, columnEnd: 90, text: '작업에 대한 캡션은 최대한 자세히 쓴다.' },
-                { rowStart: 5, rowEnd: 5, columnStart: 30, columnEnd: 90, text: '시간이 지날수록 작업의 처음 의도가 희미해지기 때문이다.' },
-                { rowStart: 7, rowEnd: 7, columnStart: 30, columnEnd: 90, text: '글로 정리해 둔 기억은 시간과 말에 의해 마모된다.' },
-                { rowStart: 9, rowEnd: 9, columnStart: 30, columnEnd: 90, text: '그럴 때면 수명에 대해 생각한다.' },
-                { rowStart: 11, rowEnd: 11, columnStart: 30, columnEnd: 90, text: '이 작업의 수명은 언제까지일까?' },
-                { rowStart: 13, rowEnd: 13, columnStart: 30, columnEnd: 90, text: '제 기능을 다하지 못하면 혹은 내 기억에서 흐릿해지면 사라지는 걸까?' },
-                { rowStart: 15, rowEnd: 15, columnStart: 30, columnEnd: 90, text: '하지만 작업의 유한함 때문에 생(生)이 발생한다.' },                
-                { rowStart: 18, rowEnd: 18, columnStart: 80, columnEnd: 100, text: '논문 pp.17 발췌' },
+                { rowStart: 1, rowEnd: 1, columnStart: 20, columnEnd: 30, text: '<작업의 수명>' },
+                { rowStart: 4, rowEnd: 4, columnStart: 20, columnEnd: 45, text: '작업에 대한 캡션은 최대한 자세히 쓴다.' },
+                { rowStart: 5, rowEnd: 5, columnStart: 30, columnEnd: 65, text: '시간이 지날수록 작업의 처음 의도가 희미해지기 때문이다.' },
+                { rowStart: 7, rowEnd: 7, columnStart: 30, columnEnd: 60, text: '글로 정리해 둔 기억은 시간과 말에 의해 마모된다.' },
+                { rowStart: 9, rowEnd: 9, columnStart: 30, columnEnd: 50, text: '그럴 때면 수명에 대해 생각한다.' },
+                { rowStart: 11, rowEnd: 11, columnStart: 30, columnEnd: 60, text: '이 작업의 수명은 언제까지일까?' },
+                { rowStart: 13, rowEnd: 13, columnStart: 30, columnEnd: 70, text: '제 기능을 다하지 못하면 혹은 내 기억에서 흐릿해지면 사라지는 걸까?' },
+                { rowStart: 15, rowEnd: 15, columnStart: 30, columnEnd: 60, text: '하지만 작업의 유한함 때문에 생(生)이 발생한다.' },                
+                { rowStart: 18, rowEnd: 18, columnStart: 80, columnEnd: 95, text: '논문 pp.17 발췌' },
 
             ];
 
