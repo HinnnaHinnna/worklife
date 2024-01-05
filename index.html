@@ -19,7 +19,7 @@
             grid-template-columns: repeat(100, 1fr);
             grid-template-rows: repeat(20, 1fr); 
             gap: 0px;
-            overflow-y: hidden; /* 가로 스크롤을 감춤 */
+            overflow: hidden; /* 가로 스크롤을 감춤 */
         }
 
         .cell {
@@ -30,17 +30,31 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: calc(5px + (70vw - 320px) / 100);
+            font-size: calc(7px + (70vw - 320px) / 100);
             color: white;
             overflow: hidden;
             font-family: 'wanted-sans';
+          }
+          @media screen and (max-width: 640px) {
+            .grid {
+            display:grid;
+            grid-template-columns: repeat(calc(100vw / 20), 1fr);
+            grid-template-rows: repeat(20, 1fr); 
+            overflow:scroll;
+          }
+            .cell {
+            width: calc(100vw / 40);
+            height: calc(100vh / 50);
+            font-size: calc(10px + (70vw - 320px) / 100);
+            overflow: hidden;
+            }
           }
     </style>
 </head>
   <body>
     <div class="grid" id="grid">
     <!-- Initial cell with grid-spanning properties -->
-    <div class="cell" style="grid-column: 1 / 75; grid-row:1 / 60;"></div>
+    <div class="cell" style="grid-column: 1 / 5; grid-row:1 / 10;"></div>
     </div>
     
     <script>
