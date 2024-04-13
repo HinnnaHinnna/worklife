@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>작업의 수명(소리내어 읽어봅시다)</title>
+
+  <style>
+    /* Font import using a corrected format */
+    @import url("https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css") top;
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;1,100&display=swap');
+
+    body {
+      margin: 0;
+      overflow-y: hidden;
+      /* 가로 스크롤을 감춤 */
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      /* grid-template: 40px 40px / auto auto auto; */
+      grid-template-columns: repeat(100, 1fr);
+      grid-template-rows: repeat(20, 1fr);
+      gap: 0px;
+      overflow: hidden;
+      /* 가로 스크롤을 감춤 */
+    }
+
+    .cell {
+      width: 1fr;
+      height: calc(6px + (70vw - 320px) / 17);
+      background-color: rgb(255, 255, 255);
+      cursor: pointer;
+      display: flex;
+      justify-content: top;
+      font-size: calc(6px + (70vw - 320px) / 100);
+      text-align: center;
+      color: white;
+      overflow: hidden;
+      font-family: 'wanted-sans';
+      margin:1px;
+    }
+
+    #timer {
+      height: 110px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 150px;
+      line-height: 120px;
+      margin-bottom: calc(10vw/2);
+    }
+
+    @media screen and (max-width: 640px) {
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(100, 1fr);
+        grid-template-rows: repeat(20, 1fr);
+        text-align: center;
+        overflow: hidden;
+        margin: 0%;
+      }
+
+      .cell {
+        width: 1fr/2;
+        height: calc(6px + (50vw - 120px) / 15);
+        font-size: calc(3px + (65vw - 120px) / 100);
+        overflow: hidden;
+      }
+
+      #timer {
+        height: 150px;
+        font-family: 'Roboto Mono', monospace;
+        font-size: calc(90px + (70vw - 320px) / 100);
+        text-align: center;
+        line-height: 120px;
+        margin-bottom: calc(10vw/7);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="timer">0</div>
+
+  <div class="grid" id="grid">
+    <!-- Initial cell with grid-spanning properties -->
+    <div class="cell" style="grid-column: 1 / 100; grid-row:1 / 20;"></div>
+  </div>
+
+<script>
+const ROWCOUNT = 20;
+const COLCOUNT = 100;
+let charArrayIdx = new Array(ROWCOUNT*COLCOUNT);
+let whiteCellCount = 0;
+let totalCharCount = 0;
+let isFirstClick = true;
+
+function getCellPosition(cell) {
+    const index = Array.from(grid.children).indexOf(cell);
+    return [Math.floor(index / (0.3*COLCOUNT)), index % (0.1*COLCOUNT)]; //인덱스 나누기 수가 작아질수록 랜덤하게 찍힘
+}
+
+function getRandomDuration() {
+    return Math.floor(Math.random() * 1000);
+}
+
+const grid = document.getElementById('grid');
+function changeColor(cell, seconds) {
+    if (whiteCellCount>=totalCharCount) return;
+
+    cell.style.backgroundColor = 'rgb(0,0,255)'; 
+    cell.style.color = 'rgb(0,0,255)'; 
+    setTimeout(() => {
+        cell.style.backgroundColor = 'rgb(255,255,255)';
+        cell.style.color = 'rgb(255,255,255)'; 
+        
+        const [i, j] = getCellPosition(cell);
+        let idx = i*COLCOUNT + j;
+        if (charArrayIdx[idx]==1) {
+            whiteCellCount++;
+            charArrayIdx[idx]++;
+        }
+
+        if (whiteCellCount<totalCharCount) {
+            changeAdjacentCellsColor(i, j, seconds + Math.random() * 10);
+        }
+    }, seconds * 0.0001);
+}
+
+function changeAdjacentCellsColor(row, col, seconds) {
+    if (whiteCellCount>=totalCharCount) return;
+
+    const adjacentCells = [
+        [row - 1, col], // 위쪽 칸
+        [row + 1, col], // 아래쪽 칸
+        [row, col - 1], // 왼쪽 칸
+        [row, col + 1], // 오른쪽 칸
+        [row - 1, col - 1], // 왼쪽 위 칸
+        [row - 1, col + 1], // 오른쪽 위 칸
+        [row + 1, col - 1], // 왼쪽 아래 칸
+        [row + 1, col + 1], // 오른쪽 아래 칸
+    ];
+
+    const randomIndex = parseInt(Math.random() * adjacentCells.length);
+    const [i, j] = adjacentCells[randomIndex];
+
+    if (!grid.children[i * COLCOUNT + j]) return;
+
+    const cell = grid.children[i * COLCOUNT + j];
+    cell.style.backgroundColor = 'rgb(051,255,051)'; // 녹색 배경색
+    cell.style.color = 'rgb(051,255,051)'; 
+    setTimeout(() => {
+        cell.style.backgroundColor = 'rgb(255,255,255)';
+        cell.style.color = 'rgb(255,255,255)';
+
+        const [i, j] = getCellPosition(cell);
+        let idx = i*COLCOUNT + j;
+        if (charArrayIdx[idx]==1) {
+            whiteCellCount++;
+            charArrayIdx[idx]++;
+        }
+        if (whiteCellCount<totalCharCount) {
+            changeAdjacentCellsColor(i, j, 1);
+        }
+    }, seconds * 0.1);
+}
+
+
+function initializeGrid() {
+    grid.innerHTML = ''; // 기존의 격자를 비웁니다.
+    for (let i = 0; i < ROWCOUNT; i++) { //Y
+        for (let j = 0; j < COLCOUNT; j++) { //X
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.style.backgroundColor = 'rgb(255,255,255)'; //글자가 안써진 칸
+            let idx = i*COLCOUNT + j;
+            charArrayIdx[i*COLCOUNT+j] = 0;
+            cell.addEventListener('click', () => {
+                if (charArrayIdx[idx]==1) {
+                    if (cell.style.backgroundColor != 'rgb(255,0, 0)') {
+                        cell.style.backgroundColor = 'rgb(255,0, 0)';
+                        console.log("clickedN = " + idx);
+                        if (isFirstClick) {
+                            changeColor(cell, 10); // 최초 클릭 칸
+                            isFirstClick = false;
+                        } else {
+                            const randomDuration = getRandomDuration();
+                            changeColor(cell, randomDuration); // 나머지 칸들
+                        }
+                    }
+                }
+                cell.removeEventListener('click', ()=>{ console.log("removed"); }, false);
+            });
+            grid.appendChild(cell);
+        }
+    }
+}
+
+initializeGrid();
+
+
+function shuffleSpecificCharacters() {
+      const specificCharacters = [
+        {
+          rowStart: 0, rowEnd: 20, columnStart: 0, columnEnd: 100, text: 
+           `쓰기는 글 쓰는 사람의 생각을 문자로 표현하는 것이다. 진정한 의미의 ‘쓰기’는 시각적 기호를 내면화한 사람이 정확한 말로써 의식을 갖고 글을 쓴 후, 상대방이 그것을 읽고 글로써 글쓴이의 말을 인식하는 것이다. 이러한 쓰기는 단순히 ‘말하기’를 옮긴 것이 아닌 청각의 세계에서 시각의 세계로 사고 체계를 전환 시킨다.
+           추리소설은 한 인물의 시점으로 긴장감을 고조시키며 사건 해결을 향해 전개되는 클라이맥스 선형 플롯 형식의 쓰기이다. 이러한 선명하고 선형적인 구조의 글을 AI를 활용해 분해하고 압축한다. AI를 통해 반복된 문장은 어조나 구분을 나타내는 구두점이 사라진다. 음성 담론 속 ‘구술’은 목소리로 발화된 말과 코드화된 음소와 일치하지 않으면 의미가 전달되지 않는다. 이때의 ‘구술’은 어떠한 맥락을 가진 실제 상황에서 발화되며 말로 표현하는 것 이상을 전달한다. 반면 텍스트 속 ‘구술’은 혼자 떨어져 있다. 음성적인 부분을 상실한 채 억양도 어조도 없다. 물음표나 쉼표 등의 구두법으로 텍스트 외적 일부분을 추측할 수는 있지만 기본적으로 고립되어 있다.
+           내가 만드는 디자인은 쉽게 전달하는 것을 일차적 목적으로 삼는다. 내가 쓰는 글 역시 알기 쉽게 쓰는 것을 우선 한다. 글을 쓰고 나면 ‘내가 이런 생각을 했나?’란 생각을 한다. 어쩌면 전달자의 의도가 완벽하게 적용된 메시지는 그 매체가 무엇이건 사실상 전달 불가능한 무엇일지 모른다. 우리는 서로 근사치의 무언가를 주고 받는다. 이에 따른 추상화가 발생하는 것도 당연하다. 모든 메시지는 결국 시적일수 밖에 없다. 우리 모두는 기본적으로 비의도적 시인이다.` 
+          },
+      ];
+
+      specificCharacters.forEach(characterInfo => {
+        const { rowStart, rowEnd, columnStart, columnEnd, text } = characterInfo;
+        //console.log(text.length);
+        for (let row = rowStart; row <= rowEnd; row++) {
+          for (let column = columnStart; column <= columnEnd; column++) {
+            const specificCell = grid.children[row * COLCOUNT + column];
+            let charX = parseInt(column - columnStart);
+            let charY = parseInt(row - rowStart);
+            let charIdx = charY*parseInt(columnEnd - columnStart) + charX;
+            if (charIdx>=text.length-1) continue;
+
+            specificCell.textContent = text[charIdx];
+            //specificCell.style.backgroundColor = 'rgb(255, 255, 255)';
+            specificCell.style.color = 'black';
+            specificCell.style.height = 20; // 셀 높이를 20으로 설정
+            // console.log("char="+text[charIdx]+" / ");
+            if (text[charIdx]!=" " && text[charIdx]!="\n" && text[charIdx]!="\t" && text[charIdx]!=32 && text[charIdx]!=160) { 
+                specificCell.style.backgroundColor = 'rgb(255, 255, 255)'; //글자가 들어간 셀 색깔
+                charArrayIdx[row * COLCOUNT + column] = 1;
+                totalCharCount++;
+            }
+          }
+        }
+      });
+    }
+
+    shuffleSpecificCharacters();
+
+
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 10;
+    recognition.lang = 'ko-KR';
+    recognition.audioStartTimeout = 0
+    recognition.audioEndTimeout = 0;
+
+    recognition.onresult = function (event) {
+      const interimTranscript = event.results[0][0].transcript;
+      const finalTranscript = event.results[0].isFinal ? interimTranscript : '';
+
+      for (let i = 0; i < finalTranscript.length; i++) {
+        const char = finalTranscript.charAt(i);
+
+        const randomIndex = Math.floor(Math.random() * grid.children.length);
+        const cell = grid.children[randomIndex];
+        if (isFirstClick) {
+          changeColor(cell, 10); // 최초 클릭 칸
+          isFirstClick = false;
+        } else {
+          const randomDuration = getRandomDuration();
+          changeColor(cell, randomDuration); // 나머지 칸들
+        }
+      }
+    };
+
+    recognition.onerror = (event) => {
+      const error = event.error;
+
+      switch (error) {
+        case 'no-speech':
+          // 사용자에게 메시지를 표시하여 다시 시도하도록 안내합니다.
+          break;
+        case 'audio-capture':
+          // 마이크에 문제가 있는지 확인하도록 사용자에게 메시지를 표시합니다.
+          break;
+        case 'not-allowed':
+          // 사용자가 마이크 사용 권한을 거부했는지 확인하도록 사용자에게 메시지를 표시합니다.
+          break;
+        default:
+        // 알 수 없는 오류 발생 시 메시지를 표시합니다.
+      }
+    };
+
+    // 음성 인식 시작
+    recognition.start();
+
+    // 마이크 항상 켜짐
+    recognition.onend = () => {
+      recognition.start();
+    };
+
+
+
+    const timer = document.getElementById('timer');
+    let seconds = 0;
+    const timerInterval = setInterval(() => {
+      seconds++;
+
+      if (seconds >= 86400) {
+        seconds = 0;
+      }
+      timer.textContent = seconds;
+      if (whiteCellCount>=totalCharCount) {
+        clearInterval(timerInterval);
+      }
+    }, 1000);
+
+</script>
+
+
+  
+</body>
+
+</html>
