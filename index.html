@@ -35,12 +35,12 @@
       cursor: pointer;
       display: flex;
       justify-content: top;
-      font-size: calc(6px + (70vw - 320px) / 100);
+      font-size: calc(5px + (70vw - 320px) / 100);
       text-align: center;
       color: white;
       overflow: hidden;
       font-family: 'wanted-sans';
-      margin:1px;
+      margin:0px;
     }
 
     #timer {
@@ -109,7 +109,7 @@ const grid = document.getElementById('grid');
 function changeColor(cell, seconds) {
     if (whiteCellCount>=totalCharCount) return;
 
-    cell.style.backgroundColor = 'rgb(0,0,255)'; 
+    cell.style.backgroundColor = 'rgb(0,0,255)'; //파란 배경색
     cell.style.color = 'rgb(0,0,255)'; 
     setTimeout(() => {
         cell.style.backgroundColor = 'rgb(255,255,255)';
