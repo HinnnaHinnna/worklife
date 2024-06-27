@@ -28,16 +28,17 @@
 
     .cell {
       width: 1fr;
-      height: calc(6px + (70vw - 320px) / 17);
+      height: calc(7px + (70vw - 320px) / 17);
       background-color: rgb(255, 255, 255);
       cursor: pointer;
       display: flex;
       justify-content: top;
-      font-size: calc(6px + (70vw - 320px) / 100);
+      font-size: calc(9px + (70vw - 320px) / 100);
       text-align: center;
       color: white;
       overflow: hidden;
       font-family: 'pretendard';
+      font-weight: 400;
     }
 
     #timer {
@@ -127,10 +128,10 @@
           charArrayIdx[idx]++;
         }
 
-        if (mode<4) {
-            if (whiteCellCount < totalCharCount) {
-            changeAdjacentCellsColor(i, j, seconds + Math.random() * 1, mode+1);
-            }
+        if (mode < 4) {
+          if (whiteCellCount < totalCharCount) {
+            changeAdjacentCellsColor(i, j, seconds + Math.random() * 1, mode + 1);
+          }
         }
 
         if (whiteCellCount >= totalCharCount) {
@@ -150,47 +151,19 @@
         [row + 1, col - 1], [row + 1, col + 1]
       ].filter(([r, c]) => r >= 0 && r < ROWCOUNT && c >= 0 && c < COLCOUNT);
 
-      
-      for (let k=0; k<adjacentCells.length; k++) {
+
+      for (let k = 0; k < adjacentCells.length; k++) {
         let y = adjacentCells[k][0];
         let x = adjacentCells[k][1];
         let idx = parseInt(y * COLCOUNT + x);
         const cell = grid.children[idx];
         const r = Math.random();
-        if (r<0.3 && (cell.style.color!=lastColor)) { //(cell.style.color!=midColor && cell.style.color!=lastColor)
+        if (r < 0.3 && (cell.style.color != lastColor)) { //(cell.style.color!=midColor && cell.style.color!=lastColor)
           const randomDuration = getRandomDuration();
-           changeColor(cell, randomDuration, mode);
+          changeColor(cell, randomDuration, mode);
         }
 
       }
-    
-/*
-      await Promise.all(adjacentCells.map(async ([i, j]) => {
-        if (grid.children[i * COLCOUNT + j]) {
-          const cell = grid.children[i * COLCOUNT + j];
-          cell.style.backgroundColor = lastColor;
-          cell.style.color = lastColor;
-          await new Promise(resolve => setTimeout(resolve, delay * 10)); // 지연 시간을 줄임
-
-          cell.style.backgroundColor = lastColor;
-          cell.style.color = lastColor;
-
-          let idx = i * COLCOUNT + j;
-          if (charArrayIdx[idx] == 1) {
-            whiteCellCount++;
-            charArrayIdx[idx]++;
-          }
-          if (whiteCellCount < totalCharCount) {
-            await changeAdjacentCellsColor(i, j, delay); // 지연 시간 유지
-          }
-
-          if (whiteCellCount >= totalCharCount) {
-            clearInterval(timerInterval);
-            location.reload();
-          }
-        }
-      }));
-      */
     }
 
     // 이벤트 핸들러 예시 (클릭 시)
@@ -205,7 +178,6 @@
         await changeAdjacentCellsColor(i, j, 1);
       }
     });
-
 
 
     function initializeGrid() {
@@ -242,39 +214,39 @@
     initializeGrid();
 
     function shuffleSpecificCharacters() {
-      
+
       const specificCharacters1 = [
         {
-          rowStart: 1, rowEnd: 6, columnStart: 7, columnEnd: 50, text:
+          rowStart: 1, rowEnd: 6, columnStart: 7, columnEnd: 51, text:
             `네가 읽은 문장들은 너의 것일까 네가 말한 문장들이 너의 것일까 `
         },
         {
-          rowStart: 2, rowEnd: 7, columnStart: 10, columnEnd: 50, text:
+          rowStart: 6, rowEnd: 7, columnStart: 12, columnEnd: 50, text:
             `김한민이 쓴 책 책섬에서 직접 인용 일부 변형 `
         },
         {
-          rowStart: 1, rowEnd: 6, columnStart: 7, columnEnd: 50, text:
-            `비행기 날아라 날아라 하하 너는 누구냐 김지영씨 `
+          rowStart: 1, rowEnd: 6, columnStart: 10, columnEnd: 52, text:
+            `1루수는 누구야 2루수 이름이 뭐야 3루수는 몰라 `
         },
         {
-          rowStart: 2, rowEnd: 7, columnStart: 10, columnEnd: 50, text:
-            `김한민 바보 `
+          rowStart: 6, rowEnd: 8, columnStart: 10, columnEnd: 70, text:
+            `1938년 스탠딩 코메디인 1루수가 누구야 중에서 `
         },
         {
-          rowStart: 1, rowEnd: 6, columnStart: 7, columnEnd: 50, text:
-            `잘생긴 사람 다 죽어라 잘생긴 사람 다 죽어라 `
+          rowStart: 1, rowEnd: 6, columnStart: 1, columnEnd: 70, text:
+            `수한무수한무응가투척기그저께신파치가입었던빤쭈신파치의인생발뭉페더리온아이작슈나이더삼분의일의순수한감정에남은삼분의이는거스러미가신경쓰이는감정배신은내이름을아는것같으면서모른다는것을나는알아아들놈놈팡이이면수수더분분뇨구덩이이면수이이면수는아까나온이면수가아니거든임연수어란말이지라라유유우테이미야오키무코퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤왕재수똥마루 `
         },
         {
-          rowStart: 2, rowEnd: 7, columnStart: 10, columnEnd: 50, text:
-            `잘생긴 사람 다 죽어라 `
+          rowStart: 6, rowEnd: 9, columnStart: 27, columnEnd: 50, text:
+            `라쿠고 작품인 주게무의 만화 은혼 버전 `
         },
       ];
-      
-      let tmpi = parseInt(Math.random()*2.999); //세트의 개수에 맞춰서 4세트면 3.9999 
-      tmpi = tmpi*2;
 
-      const specificCharacters = specificCharacters1.slice(tmpi, tmpi+2);
-      
+      let tmpi = parseInt(Math.random() * 2.999); //세트의 개수에 맞춰서 4세트면 3.9999 
+      tmpi = tmpi * 2;
+
+      const specificCharacters = specificCharacters1.slice(tmpi, tmpi + 2);
+
       for (let i = 0; i < ROWCOUNT; i++) { //Y
         for (let j = 0; j < COLCOUNT; j++) { //X
           const cell = grid.children[i * COLCOUNT + j];
@@ -337,8 +309,8 @@
             const idx = parseInt(y * COLCOUNT + x);
             const specificCell = grid.children[idx];
             const charinner = specificCell.textContent;
-            if (charArrayIdx[idx]==1 && charinner.trim()==char.trim()) {
-              console.log("checked:"+charinner.trim());
+            if (charArrayIdx[idx] == 1 && charinner.trim() == char.trim()) {
+              console.log("checked:" + charinner.trim());
               if (isFirstClick) {
                 changeColor(specificCell, 1, 1); // 최초 클릭 칸
                 isFirstClick = false;
