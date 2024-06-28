@@ -28,17 +28,16 @@
 
     .cell {
       width: 1fr;
-      height: calc(7px + (70vw - 320px) / 17);
+      height: calc(6px + (70vw - 320px) / 17);
       background-color: rgb(255, 255, 255);
       cursor: pointer;
       display: flex;
       justify-content: top;
-      font-size: calc(9px + (70vw - 320px) / 100);
+      font-size: calc(6px + (70vw - 320px) / 100);
       text-align: center;
       color: white;
       overflow: hidden;
       font-family: 'pretendard';
-      font-weight: 500;
     }
 
     #timer {
@@ -93,26 +92,20 @@
     let totalCharCount = 0;
     let isFirstClick = true;
     let baseColor = 'rgb(102,255,102)';
-    let midColor = 'rgb(255,255,255)';
-    let lastColor = 'rgb(0,0,255)';
+    let midColor = 'rgb(0,0,240)';
+    let lastColor = 'rgb(255,255,255)';
 
     function getCellPosition(cell) {
       const index = Array.from(grid.children).indexOf(cell);
       return [Math.floor(index / COLCOUNT), index % COLCOUNT];
     }
 
-    function getDistance(cell1, cell2) {
-      const rect1 = cell1.getBoundingClientRect();
-      const rect2 = cell2.getBoundingClientRect();
-      return Math.sqrt(Math.pow(rect1.left - rect2.left, 2) + Math.pow(rect1.top - rect2.top, 2));
-    }
-
     function getRandomDuration() {
-      return Math.floor(Math.random() * 1000) + 1000;
+      return Math.floor(Math.random() * 1000);
     }
 
     const grid = document.getElementById('grid');
-    function changeColor(cell, seconds, mode) {
+    function changeColor(cell, seconds) {
       if (whiteCellCount >= totalCharCount) return;
 
       cell.style.backgroundColor = midColor;
@@ -128,10 +121,8 @@
           charArrayIdx[idx]++;
         }
 
-        if (mode < 4) {
-          if (whiteCellCount < totalCharCount) {
-            changeAdjacentCellsColor(i, j, seconds + Math.random() * 1, mode + 1);
-          }
+        if (whiteCellCount < totalCharCount) {
+          changeAdjacentCellsColor(i, j, seconds + Math.random() * 1);
         }
 
         if (whiteCellCount >= totalCharCount) {
@@ -141,44 +132,41 @@
       }, seconds * 1);
     }
 
-    async function changeAdjacentCellsColor(row, col, delay, mode) {
+    function changeAdjacentCellsColor(row, col, seconds) {
       if (whiteCellCount >= totalCharCount) return;
 
       const adjacentCells = [
-        [row - 1, col], [row + 1, col],
-        [row, col - 1], [row, col + 1],
-        [row - 1, col - 1], [row - 1, col + 1],
-        [row + 1, col - 1], [row + 1, col + 1]
-      ].filter(([r, c]) => r >= 0 && r < ROWCOUNT && c >= 0 && c < COLCOUNT);
+        [row, col]
+      ];
 
+      const randomIndex = parseInt(Math.random() * adjacentCells.length);
+      const [i, j] = adjacentCells[randomIndex];
 
-      for (let k = 0; k < adjacentCells.length; k++) {
-        let y = adjacentCells[k][0];
-        let x = adjacentCells[k][1];
-        let idx = parseInt(y * COLCOUNT + x);
-        const cell = grid.children[idx];
-        const r = Math.random();
-        if (r < 0.3 && (cell.style.color != lastColor)) { //(cell.style.color!=midColor && cell.style.color!=lastColor)
-          const randomDuration = getRandomDuration();
-          changeColor(cell, randomDuration, mode);
+      if (!grid.children[i * COLCOUNT + j]) return;
+
+      const cell = grid.children[i * COLCOUNT + j];
+      cell.style.backgroundColor = lastColor; // 중간 변하는 배경색
+      cell.style.color = lastColor;
+      setTimeout(() => {
+        cell.style.backgroundColor = lastColor;
+        cell.style.color = lastColor;
+
+        const [i, j] = getCellPosition(cell);
+        let idx = i * COLCOUNT + j;
+        if (charArrayIdx[idx] == 1) {
+          whiteCellCount++;
+          charArrayIdx[idx]++;
+        }
+        if (whiteCellCount < totalCharCount) {
+          changeAdjacentCellsColor(i, j, 1);
         }
 
-      }
+        if (whiteCellCount >= totalCharCount) {
+          clearInterval(timerInterval);
+          location.reload();
+        }
+      }, seconds * 0.1);
     }
-
-    // 이벤트 핸들러 예시 (클릭 시)
-    grid.addEventListener('click', async (event) => {
-      let target = event.target;
-      let index = Array.from(grid.children).indexOf(target);
-
-      if (index !== -1) {
-        let i = Math.floor(index / COLCOUNT);
-        let j = index % COLCOUNT;
-
-        await changeAdjacentCellsColor(i, j, 1);
-      }
-    });
-
 
     function initializeGrid() {
       grid.innerHTML = ''; // 기존의 격자를 비웁니다.
@@ -195,11 +183,11 @@
                 cell.style.backgroundColor = baseColor;
                 console.log("clickedN = " + idx);
                 if (isFirstClick) {
-                  changeColor(cell, 10, 1); // 최초 클릭 칸
+                  changeColor(cell, 10); // 최초 클릭 칸
                   isFirstClick = false;
                 } else {
                   const randomDuration = getRandomDuration();
-                  changeColor(cell, randomDuration, 1); // 나머지 칸들
+                  changeColor(cell, randomDuration); // 나머지 칸들
                 }
               }
             }
@@ -255,6 +243,7 @@
         }
       }
 
+
       specificCharacters.forEach(characterInfo => {
         const { rowStart, rowEnd, columnStart, columnEnd, text } = characterInfo;
         for (let row = rowStart; row <= rowEnd; row++) {
@@ -281,8 +270,8 @@
     shuffleSpecificCharacters();
 
     const recognition = new webkitSpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.maxAlternatives = 10;
     recognition.lang = 'ko-KR';
     recognition.audioStartTimeout = 0;
@@ -291,7 +280,7 @@
     function allTextWhite() {
       const cells = Array.from(grid.children);
       for (let cell of cells) {
-        if (cell.textContent.trim() && cell.style.color !== lastColor) {
+        if (cell.textContent.trim() && cell.style.color !== 'rgb(255, 255, 255)') {
           return false;
         }
       }
@@ -303,38 +292,27 @@
       const finalTranscript = event.results[0].isFinal ? interimTranscript : '';
 
       for (let i = 0; i < finalTranscript.length; i++) {
-        const char = finalTranscript.charAt(i);
-        for (let y = 0; y < ROWCOUNT; y++) { //Y
-          for (let x = 0; x < COLCOUNT; x++) { //X
-            const idx = parseInt(y * COLCOUNT + x);
-            const specificCell = grid.children[idx];
-            const charinner = specificCell.textContent;
-            if (charArrayIdx[idx] == 1 && charinner.trim() == char.trim()) {
-              console.log("checked:" + charinner.trim());
-              if (isFirstClick) {
-                changeColor(specificCell, 1, 1); // 최초 클릭 칸
-                isFirstClick = false;
-              } else {
-                const randomDuration = getRandomDuration();
-                changeColor(specificCell, randomDuration, 1); // 나머지 칸들
-              }
-            }
+        if (Math.random() <= 0.1) { // 10% 확률로 이벤트 발생
+          const char = finalTranscript.charAt(i);
 
+          const randomIndex = Math.floor(Math.random() * grid.children.length);
+          const cell = grid.children[randomIndex];
+          if (isFirstClick) {
+            changeColor(cell, 10); // 최초 클릭 칸
+            isFirstClick = false;
+          } else {
+            const randomDuration = getRandomDuration();
+            changeColor(cell, randomDuration); // 나머지 칸들
           }
         }
       }
-    };
 
-    function allTextLastColor() {
-      const cells = Array.from(grid.children);
-      for (let cell of cells) {
-        if (cell.textContent.trim() && cell.style.color !== lastColor) {
-          return false;
-        }
+      if (allTextWhite()) {
+        clearInterval(timerInterval);
+        // alert('All text is now white!');
+        location.reload();
       }
-      return true;
-    }
-
+    };
 
     recognition.onerror = (event) => {
       const error = event.error;
@@ -350,9 +328,9 @@
       }
     };
 
+
     recognition.onend = () => {
       recognition.start();
-      console.log("recognition restarted");
     };
 
     // 음성 인식 시작
@@ -369,7 +347,7 @@
       timer.textContent = seconds;
       if (whiteCellCount >= totalCharCount) {
         clearInterval(timerInterval);
-        location.reload(true);
+        location.reload();
       }
     }, 1000);
 
