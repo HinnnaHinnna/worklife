@@ -323,42 +323,6 @@
           }
         }
       }
-
-      //recognition.start();
-
-      /* // 24.06.24 10:52
-      for (let i = 0; i < finalTranscript.length; i++) {
-        if (Math.random() <= 0.1) { // 10% 확률로 이벤트 발생
-          const char = finalTranscript.charAt(i);
-
-          const randomIndex = Math.floor(Math.random() * grid.children.length);
-          const cell = grid.children[randomIndex];
-          if (isFirstClick) {
-            changeColor(cell, 1); // 최초 클릭 칸
-            isFirstClick = false;
-          } else {
-            const randomDuration = getRandomDuration();
-            changeColor(cell, randomDuration); // 나머지 칸들
-          }
-
-          // 주변 셀들에 연쇄적으로 이벤트 발생
-          const neighbors = getNeighbors(cell);
-          neighbors.forEach(neighbor => {
-            if (charArrayIdx[Array.from(grid.children).indexOf(neighbor)] == 1) {
-              changeColor(neighbor, randomDuration);
-            }
-          });
-        }
-      }
-      */
-
-      /*
-      if (allTextLastColor()) {
-        clearInterval(timerInterval);
-        alert('All text is now lastColor!');
-        location.reload();
-      }
-        */
     };
 
     function allTextLastColor() {
@@ -406,7 +370,6 @@
       if (whiteCellCount >= totalCharCount) {
         clearInterval(timerInterval);
         location.reload(true);
-        //location.href="index1.html";
       }
     }, 1000);
 
