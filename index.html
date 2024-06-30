@@ -112,6 +112,22 @@
     }
 
     const grid = document.getElementById('grid');
+
+
+    // 글자가 있는 모든 칸이 lastColor로 변했는지 확인하는 함수
+    function checkAllCellsColored() {
+      for (let i = 0; i < ROWCOUNT; i++) {
+        for (let j = 0; j < COLCOUNT; j++) {
+          const idx = i * COLCOUNT + j;
+          const cell = grid.children[idx];
+          if (charArrayIdx[idx] == 1 && cell.style.backgroundColor !== lastColor) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
     function changeColor(cell, seconds, mode) {
       if (whiteCellCount >= totalCharCount) return;
 
@@ -134,7 +150,8 @@
           }
         }
 
-        if (whiteCellCount >= totalCharCount) {
+        // 모든 셀이 lastColor로 변했는지 확인
+        if (checkAllCellsColored()) {
           clearInterval(timerInterval);
           location.reload();
         }
@@ -362,14 +379,15 @@
     let seconds = 0;
     const timerInterval = setInterval(() => {
       seconds++;
-
       if (seconds >= 86400) {
         seconds = 0;
       }
       timer.textContent = seconds;
-      if (whiteCellCount >= totalCharCount) {
+
+      // 모든 셀이 lastColor로 변했는지 확인
+      if (checkAllCellsColored()) {
         clearInterval(timerInterval);
-        location.reload(true);
+        location.reload();
       }
     }, 1000);
 
