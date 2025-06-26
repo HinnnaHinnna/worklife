@@ -75,6 +75,11 @@
         margin-bottom: calc(10vw / 7);
       }
     }
+    @media (max-width: 768px) {
+  body {
+    display: none;
+  }
+}
   </style>
 </head>
 
@@ -390,6 +395,12 @@
         location.reload();
       }
     }, 1000);
+
+
+  if (window.innerWidth <= 768) {
+    alert("이 페이지는 모바일에서 열리지 않습니다.");
+    document.body.innerHTML = ""; // HTML 내용 모두 제거
+  }
 
   </script>
 </body>
