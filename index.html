@@ -1,396 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>수한무의 수명(소리내어 읽어봅시다)</title>
+  <title>수한무의 수명 (모바일 대응)</title>
   <link rel="icon" href="path/to/favicon.ico" type="image/x-icon">
 
   <style>
-    /* Font import using a corrected format */
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard-dynamic-subset.css");
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;1,100&display=swap');
 
-    body {
-      margin: 20px 100px;
-      overflow-y: hidden;
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', sans-serif;
       text-align: center;
+      background-color: #f5f5f5;
+    }
+
+    body {
+      margin: 20px 60px;
+      overflow: hidden;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(50, 1fr);
       grid-template-rows: repeat(7, 1fr);
-      gap: 0px;
-      overflow: hidden;
+      gap: 0;
     }
 
     .cell {
-      width: 1fr;
-      height: calc(7px + (70vw - 320px) / 17);
-      background-color: rgb(255, 255, 255);
-      cursor: pointer;
+      height: 28px;
+      background-color: rgb(102, 255, 102);
       display: flex;
-      justify-content: top;
-      font-size: calc(9px + (70vw - 320px) / 100);
-      text-align: center;
-      color: white;
-      overflow: hidden;
-      font-family: 'pretendard';
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: black;
       font-weight: 600;
     }
 
     #timer {
-      height: 110px;
       font-family: 'Roboto Mono', monospace;
-      font-size: 150px;
-      line-height: 120px;
-      margin-bottom: calc(10vw / 2);
+      font-size: 100px;
+      margin-bottom: 20px;
     }
 
     @media screen and (max-width: 640px) {
+      body {
+        margin: 10px;
+      }
+
       .grid {
-        display: grid;
-        grid-template-columns: repeat(100, 1fr);
-        grid-template-rows: repeat(6, 1fr);
-        text-align: center;
-        overflow: hidden;
-        margin: 0%;
+        grid-template-columns: repeat(30, 1fr);
+        grid-template-rows: repeat(8, 1fr);
       }
 
       .cell {
-        width: 1fr / 2;
-        height: calc(6px + (50vw - 120px) / 15);
-        font-size: calc(3px + (65vw - 120px) / 100);
-        overflow: hidden;
+        height: 22px;
+        font-size: 10px;
       }
 
       #timer {
-        height: 150px;
-        font-family: 'Roboto Mono', monospace;
-        font-size: calc(90px + (70vw - 320px) / 100);
-        text-align: center;
-        line-height: 120px;
-        margin-bottom: calc(10vw / 7);
+        font-size: 70px;
+        margin-bottom: 10px;
       }
+    }
+
+    #warning {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
   <div id="timer">0</div>
-
-  <div class="grid" id="grid">
-    <div class="cell" style="grid-column: 1 / 100; grid-row: 1 / 7;"></div>
-  </div>
+  <div id="warning"></div>
+  <div class="grid" id="grid"></div>
 
   <script>
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      document.getElementById('warning').textContent = "⚠️ iOS에서는 음성인식이 제한될 수 있습니다.";
+    }
+
     const ROWCOUNT = 7;
-    const COLCOUNT = 50;
-    let charArrayIdx = new Array(ROWCOUNT * COLCOUNT);
+    const COLCOUNT = window.innerWidth <= 640 ? 30 : 50;
+    const grid = document.getElementById('grid');
+    const charArrayIdx = new Array(ROWCOUNT * COLCOUNT).fill(0);
     let whiteCellCount = 0;
     let totalCharCount = 0;
     let isFirstClick = true;
-    let baseColor = 'rgb(102,255,102)';
-    let midColor = 'rgb(255,255,255)';
-    let lastColor = 'rgb(0,0,255)';
 
-    function getCellPosition(cell) {
-      const index = Array.from(grid.children).indexOf(cell);
-      return [Math.floor(index / COLCOUNT), index % COLCOUNT];
-    }
-
-    function getDistance(cell1, cell2) {
-      const rect1 = cell1.getBoundingClientRect();
-      const rect2 = cell2.getBoundingClientRect();
-      return Math.sqrt(Math.pow(rect1.left - rect2.left, 2) + Math.pow(rect1.top - rect2.top, 2));
-    }
-
-    function getRandomDuration() {
-      return Math.floor(Math.random() * 1000) + 1000;
-    }
-
-    const grid = document.getElementById('grid');
-
-
-    // 글자가 있는 모든 칸이 lastColor로 변했는지 확인하는 함수
-    function checkAllCellsColored() {
-      for (let i = 0; i < ROWCOUNT; i++) {
-        for (let j = 0; j < COLCOUNT; j++) {
-          const idx = i * COLCOUNT + j;
-          const cell = grid.children[idx];
-          if (charArrayIdx[idx] == 1 && cell.style.backgroundColor !== lastColor) {
-            return false;
-          }
-        }
+    function initializeGrid() {
+      grid.innerHTML = '';
+      for (let i = 0; i < ROWCOUNT * COLCOUNT; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        grid.appendChild(cell);
       }
-      return true;
     }
 
-    function changeColor(cell, seconds, mode) {
-      if (whiteCellCount >= totalCharCount) return;
+    initializeGrid();
 
+    // 샘플 텍스트 랜덤 배치 (간단화)
+    const sample = "수한무 거북이와 두루미 은혼";
+    for (let i = 0; i < sample.length; i++) {
+      const idx = Math.floor(Math.random() * (ROWCOUNT * COLCOUNT));
+      const cell = grid.children[idx];
+      cell.textContent = sample[i];
+      charArrayIdx[idx] = 1;
+      totalCharCount++;
+    }
+
+    const baseColor = 'rgb(102,255,102)';
+    const midColor = 'white';
+    const lastColor = 'blue';
+
+    function changeColor(cell) {
       cell.style.backgroundColor = midColor;
       cell.style.color = midColor;
       setTimeout(() => {
         cell.style.backgroundColor = lastColor;
         cell.style.color = lastColor;
-
-        const [i, j] = getCellPosition(cell);
-        let idx = i * COLCOUNT + j;
-        if (charArrayIdx[idx] == 1) {
-          whiteCellCount++;
-          charArrayIdx[idx]++;
-        }
-
-        if (mode < 4) {
-          if (whiteCellCount < totalCharCount) {
-            changeAdjacentCellsColor(i, j, seconds + Math.random() * 1, mode + 1);
-          }
-        }
-
-        // 모든 셀이 lastColor로 변했는지 확인
-        if (checkAllCellsColored()) {
-          clearInterval(timerInterval);
-          location.reload();
-        }
-      }, seconds * 1);
+      }, 300);
     }
 
-    async function changeAdjacentCellsColor(row, col, delay, mode) {
-      if (whiteCellCount >= totalCharCount) return;
-
-      const adjacentCells = [
-        [row - 1, col], [row + 1, col],
-        [row, col - 1], [row, col + 1],
-        [row - 1, col - 1], [row - 1, col + 1],
-        [row + 1, col - 1], [row + 1, col + 1]
-      ].filter(([r, c]) => r >= 0 && r < ROWCOUNT && c >= 0 && c < COLCOUNT);
-
-
-      for (let k = 0; k < adjacentCells.length; k++) {
-        let y = adjacentCells[k][0];
-        let x = adjacentCells[k][1];
-        let idx = parseInt(y * COLCOUNT + x);
-        const cell = grid.children[idx];
-        const r = Math.random();
-        if (r < 0.3 && (cell.style.color != lastColor)) { //(cell.style.color!=midColor && cell.style.color!=lastColor)
-          const randomDuration = getRandomDuration();
-          changeColor(cell, randomDuration, mode);
-        }
-
+    function handleCellClick(cell) {
+      const idx = Array.from(grid.children).indexOf(cell);
+      if (charArrayIdx[idx] === 1) {
+        changeColor(cell);
+        charArrayIdx[idx]++;
+        whiteCellCount++;
       }
     }
 
-    // 이벤트 핸들러 예시 (클릭 시)
-    grid.addEventListener('click', async (event) => {
-      let target = event.target;
-      let index = Array.from(grid.children).indexOf(target);
+    // 클릭 + 모바일 터치 이벤트
+    grid.addEventListener('click', (e) => handleCellClick(e.target));
+    grid.addEventListener('touchstart', (e) => handleCellClick(e.target), { passive: true });
 
-      if (index !== -1) {
-        let i = Math.floor(index / COLCOUNT);
-        let j = index % COLCOUNT;
-
-        await changeAdjacentCellsColor(i, j, 1);
-      }
-    });
-
-
-    function initializeGrid() {
-      grid.innerHTML = ''; // 기존의 격자를 비웁니다.
-      for (let i = 0; i < ROWCOUNT; i++) { //Y
-        for (let j = 0; j < COLCOUNT; j++) { //X
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-          cell.style.backgroundColor = baseColor; //글자가 안써진 칸
-          let idx = i * COLCOUNT + j;
-          charArrayIdx[i * COLCOUNT + j] = 0;
-          cell.addEventListener('click', () => {
-            if (charArrayIdx[idx] == 1) {
-              if (cell.style.backgroundColor != baseColor) {
-                cell.style.backgroundColor = baseColor;
-                console.log("clickedN = " + idx);
-                if (isFirstClick) {
-                  changeColor(cell, 10, 1); // 최초 클릭 칸
-                  isFirstClick = false;
-                } else {
-                  const randomDuration = getRandomDuration();
-                  changeColor(cell, randomDuration, 1); // 나머지 칸들
-                }
-              }
-            }
-            cell.removeEventListener('click', () => { console.log("removed"); }, false);
-          });
-          grid.appendChild(cell);
-        }
-      }
-    }
-
-
-    initializeGrid();
-
-    function shuffleSpecificCharacters() {
-
-      const specificCharacters1 = [
-        {
-          rowStart: 1, rowEnd: 6, columnStart: 2, columnEnd: 80, text:
-            `쥬게무 쥬게무 고코노 스리키레 카이쟈리스이교노 스이교마츠 운라이마츠 후라이마츠 쿠우 네루 토코로니 스무 토코로 야부라코지노 부라코지 파이포파이포파이포노 슈린간 슈린간노 구린다이 구린다이노 폼포코피노 폼포코나노 초큐메이노 초스케 `
-        },
-        {
-          rowStart: 6, rowEnd: 7, columnStart: 31, columnEnd: 50, text:
-            `라쿠고 작품 수한무의 원래 버전 `
-        },
-        {
-          rowStart: 1, rowEnd: 6, columnStart: 2, columnEnd: 100, text:
-            `김수한무 거북이와 두루미 삼천갑자 동방삭 치치카포 사리사리센타 워리워리 세브리깡 무두셀라 구름이 허리케인에 담벼락 담벼락에 서생원 서생원에 고양이 고양이엔 바둑이 바둑이는 돌돌이 `
-        },
-        {
-          rowStart: 6, rowEnd: 8, columnStart: 31, columnEnd: 70, text:
-            `라쿠고 작품 수한무의 한국 버전 `
-        },
-        {
-          rowStart: 1, rowEnd: 6, columnStart: 2, columnEnd: 80, text:
-            `수한무수한무응가투척기그저께신파치가입었던빤쭈신파치의인생발뭉페더리온아이작슈나이더삼분의일의순수한감정에남은삼분의이는거스러미가신경쓰이는감정배신은내이름을아는것같으면서모른다는것을나는알아아들놈놈팡이이면수수더분분뇨구덩이이면수이이면수는아까나온이면수가아니거든임연수어란말이지라라유유우테이미야오키무코퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤왕재수똥마루 `
-        },
-        {
-          rowStart: 6, rowEnd: 9, columnStart: 27, columnEnd: 50, text:
-            `라쿠고 작품인 수한무의 만화 은혼 버전 `
-        },
-      ];
-
-      let tmpi = parseInt(Math.random() * 2.999); //세트의 개수에 맞춰서 4세트면 3.9999 
-      tmpi = tmpi * 2;
-
-      const specificCharacters = specificCharacters1.slice(tmpi, tmpi + 2);
-
-      for (let i = 0; i < ROWCOUNT; i++) { //Y
-        for (let j = 0; j < COLCOUNT; j++) { //X
-          const cell = grid.children[i * COLCOUNT + j];
-          charArrayIdx[i * COLCOUNT + j] = 0;
-          cell.textContent = '';
-        }
-      }
-
-      specificCharacters.forEach(characterInfo => {
-        const { rowStart, rowEnd, columnStart, columnEnd, text } = characterInfo;
-        for (let row = rowStart; row <= rowEnd; row++) {
-          for (let column = columnStart; column <= columnEnd; column++) {
-            const specificCell = grid.children[row * COLCOUNT + column];
-            let charX = parseInt(column - columnStart);
-            let charY = parseInt(row - rowStart);
-            let charIdx = charY * parseInt(columnEnd - columnStart) + charX;
-            if (charIdx >= text.length - 1) continue;
-
-            specificCell.textContent = text[charIdx];
-            specificCell.style.color = 'black';
-            specificCell.style.height = 20; // 셀 높이를 20으로 설정
-            if (text[charIdx] != " " && text[charIdx] != "\n" && text[charIdx] != "\t" && text[charIdx] != 32 && text[charIdx] != 160) {
-              specificCell.style.backgroundColor = baseColor; //글자가 들어간 셀 색깔
-              charArrayIdx[row * COLCOUNT + column] = 1;
-              totalCharCount++;
-            }
-          }
-        }
-      });
-    }
-
-    shuffleSpecificCharacters();
-
-    const recognition = new webkitSpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 10;
-    recognition.lang = 'ko-KR';
-    recognition.audioStartTimeout = 0;
-    recognition.audioEndTimeout = 0;
-
-    function allTextWhite() {
-      const cells = Array.from(grid.children);
-      for (let cell of cells) {
-        if (cell.textContent.trim() && cell.style.color !== lastColor) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    recognition.onresult = function (event) {
-      const interimTranscript = event.results[0][0].transcript;
-      const finalTranscript = event.results[0].isFinal ? interimTranscript : '';
-
-      for (let i = 0; i < finalTranscript.length; i++) {
-        const char = finalTranscript.charAt(i);
-        for (let y = 0; y < ROWCOUNT; y++) { //Y
-          for (let x = 0; x < COLCOUNT; x++) { //X
-            const idx = parseInt(y * COLCOUNT + x);
-            const specificCell = grid.children[idx];
-            const charinner = specificCell.textContent;
-            if (charArrayIdx[idx] == 1 && charinner.trim() == char.trim()) {
-              console.log("checked:" + charinner.trim());
-              if (isFirstClick) {
-                changeColor(specificCell, 1, 1); // 최초 클릭 칸
-                isFirstClick = false;
-              } else {
-                const randomDuration = getRandomDuration();
-                changeColor(specificCell, randomDuration, 1); // 나머지 칸들
-              }
-            }
-
-          }
-        }
-      }
-    };
-
-    function allTextLastColor() {
-      const cells = Array.from(grid.children);
-      for (let cell of cells) {
-        if (cell.textContent.trim() && cell.style.color !== lastColor) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-
-    recognition.onerror = (event) => {
-      const error = event.error;
-
-      switch (error) {
-        case 'no-speech':
-          break;
-        case 'audio-capture':
-          break;
-        case 'not-allowed':
-          break;
-        default:
-      }
-    };
-
-    recognition.onend = () => {
-      recognition.start();
-      console.log("recognition restarted");
-    };
-
-    // 음성 인식 시작
-    recognition.start();
-
-    const timer = document.getElementById('timer');
+    // 타이머
     let seconds = 0;
-    const timerInterval = setInterval(() => {
+    const timer = document.getElementById('timer');
+    setInterval(() => {
       seconds++;
-      if (seconds >= 86400) {
-        seconds = 0;
-      }
       timer.textContent = seconds;
-
-      // 모든 셀이 lastColor로 변했는지 확인
-      if (checkAllCellsColored()) {
-        clearInterval(timerInterval);
-        location.reload();
-      }
     }, 1000);
 
+    // 음성 인식 시작
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'ko-KR';
+      recognition.continuous = true;
+      recognition.interimResults = false;
+
+      recognition.onresult = function (event) {
+        const text = event.results[event.resultIndex][0].transcript;
+        [...text].forEach(char => {
+          for (let i = 0; i < grid.children.length; i++) {
+            const cell = grid.children[i];
+            if (cell.textContent === char && charArrayIdx[i] === 1) {
+              changeColor(cell);
+              charArrayIdx[i]++;
+              whiteCellCount++;
+            }
+          }
+        });
+      };
+
+      recognition.onerror = (e) => {
+        console.warn("Speech error:", e.error);
+      };
+
+      recognition.onend = () => {
+        recognition.start();
+      };
+
+      recognition.start();
+    } else {
+      document.getElementById('warning').textContent += " 브라우저가 음성인식을 지원하지 않습니다.";
+    }
   </script>
 </body>
 
