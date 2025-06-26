@@ -3,76 +3,71 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>수한무의 수명 (모바일 대응)</title>
-  <link rel="icon" href="path/to/favicon.ico" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>수한무의 수명 (랜덤 텍스트)</title>
 
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard-dynamic-subset.css");
-    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;1,100&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100;400&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
 
     html, body {
       margin: 0;
       padding: 0;
       font-family: 'Pretendard', sans-serif;
       text-align: center;
-      background-color: #f5f5f5;
-    }
-
-    body {
-      margin: 20px 60px;
+      background-color: #fff;
       overflow: hidden;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(50, 1fr);
-      grid-template-rows: repeat(7, 1fr);
-      gap: 0;
-    }
-
-    .cell {
-      height: 28px;
-      background-color: rgb(102, 255, 102);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: black;
-      font-weight: 600;
     }
 
     #timer {
       font-family: 'Roboto Mono', monospace;
-      font-size: 100px;
-      margin-bottom: 20px;
+      font-size: 8vw;
+      margin: 1vh 0;
+      line-height: 1.2;
     }
 
-    @media screen and (max-width: 640px) {
-      body {
-        margin: 10px;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(30, 1fr);
+      grid-auto-rows: minmax(3.5vw, auto);
+      gap: 0;
+      padding: 0 2vw;
+    }
+
+    .cell {
+      background-color: rgb(102, 255, 102);
+      font-size: 2.8vw;
+      color: black;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    @media (min-width: 641px) {
+      #timer {
+        font-size: 120px;
       }
 
       .grid {
-        grid-template-columns: repeat(30, 1fr);
-        grid-template-rows: repeat(8, 1fr);
+        grid-template-columns: repeat(50, 1fr);
+        grid-auto-rows: minmax(24px, auto);
       }
 
       .cell {
-        height: 22px;
-        font-size: 10px;
-      }
-
-      #timer {
-        font-size: 70px;
-        margin-bottom: 10px;
+        font-size: 14px;
       }
     }
 
     #warning {
       color: red;
-      font-size: 14px;
-      margin-top: 10px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -80,21 +75,21 @@
 <body>
   <div id="timer">0</div>
   <div id="warning"></div>
-  <div class="grid" id="grid"></div>
+  <div id="grid" class="grid"></div>
 
   <script>
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (isIOS) {
-      document.getElementById('warning').textContent = "⚠️ iOS에서는 음성인식이 제한될 수 있습니다.";
-    }
-
-    const ROWCOUNT = 7;
-    const COLCOUNT = window.innerWidth <= 640 ? 30 : 50;
+    const isMobile = window.innerWidth <= 640;
+    const COLCOUNT = isMobile ? 30 : 50;
+    const ROWCOUNT = 10;
     const grid = document.getElementById('grid');
-    const charArrayIdx = new Array(ROWCOUNT * COLCOUNT).fill(0);
+    const charArrayIdx = Array(ROWCOUNT * COLCOUNT).fill(0);
     let whiteCellCount = 0;
     let totalCharCount = 0;
     let isFirstClick = true;
+
+    const baseColor = 'rgb(102,255,102)';
+    const midColor = 'white';
+    const lastColor = 'blue';
 
     function initializeGrid() {
       grid.innerHTML = '';
@@ -105,21 +100,54 @@
       }
     }
 
-    initializeGrid();
+    function placeRandomTextSet() {
+      const sets = [
+        {
+          rowStart: 1, rowEnd: 6, columnStart: 2, columnEnd: 80, text:
+            `쥬게무 쥬게무 고코노 스리키레 카이쟈리스이교노 스이교마츠 운라이마츠 후라이마츠 쿠우 네루 토코로니 스무 토코로 야부라코지노 부라코지 파이포파이포파이포노 슈린간 슈린간노 구린다이 구린다이노 폼포코피노 폼포코나노 초큐메이노 초스케 `
+        },
+        {
+          rowStart: 6, rowEnd: 7, columnStart: 31, columnEnd: 50, text:
+            `라쿠고 작품 수한무의 원래 버전 `
+        },
+        {
+          rowStart: 1, rowEnd: 6, columnStart: 2, columnEnd: 100, text:
+            `김수한무 거북이와 두루미 삼천갑자 동방삭 치치카포 사리사리센타 워리워리 세브리깡 무두셀라 구름이 허리케인에 담벼락 담벼락에 서생원 서생원에 고양이 고양이엔 바둑이 바둑이는 돌돌이 `
+        },
+        {
+          rowStart: 6, rowEnd: 8, columnStart: 31, columnEnd: 70, text:
+            `라쿠고 작품 수한무의 한국 버전 `
+        },
+        {
+          rowStart: 1, rowEnd: 6, columnStart: 2, columnEnd: 80, text:
+            `수한무수한무응가투척기그저께신파치가입었던빤쭈신파치의인생발뭉페더리온아이작슈나이더삼분의일의순수한감정에남은삼분의이는거스러미가신경쓰이는감정배신은내이름을아는것같으면서모른다는것을나는알아아들놈놈팡이이면수수더분분뇨구덩이이면수이이면수는아까나온이면수가아니거든임연수어란말이지라라유유우테이미야오키무코퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤퉤왕재수똥마루 `
+        },
+        {
+          rowStart: 6, rowEnd: 9, columnStart: 27, columnEnd: 50, text:
+            `라쿠고 작품인 수한무의 만화 은혼 버전 `
+        },
+      ];
 
-    // 샘플 텍스트 랜덤 배치 (간단화)
-    const sample = "수한무 거북이와 두루미 은혼";
-    for (let i = 0; i < sample.length; i++) {
-      const idx = Math.floor(Math.random() * (ROWCOUNT * COLCOUNT));
-      const cell = grid.children[idx];
-      cell.textContent = sample[i];
-      charArrayIdx[idx] = 1;
-      totalCharCount++;
+      const setIndex = Math.floor(Math.random() * 3) * 2;
+      const selected = [sets[setIndex], sets[setIndex + 1]];
+
+      selected.forEach(({ rowStart, rowEnd, columnStart, columnEnd, text }) => {
+        for (let row = rowStart; row <= rowEnd; row++) {
+          for (let col = columnStart; col <= columnEnd; col++) {
+            const idx = row * COLCOUNT + col;
+            const charIndex = (row - rowStart) * (columnEnd - columnStart) + (col - columnStart);
+            const char = text[charIndex];
+            if (char && idx < grid.children.length) {
+              const cell = grid.children[idx];
+              cell.textContent = char;
+              cell.style.color = 'black';
+              charArrayIdx[idx] = 1;
+              totalCharCount++;
+            }
+          }
+        }
+      });
     }
-
-    const baseColor = 'rgb(102,255,102)';
-    const midColor = 'white';
-    const lastColor = 'blue';
 
     function changeColor(cell) {
       cell.style.backgroundColor = midColor;
@@ -130,8 +158,8 @@
       }, 300);
     }
 
-    function handleCellClick(cell) {
-      const idx = Array.from(grid.children).indexOf(cell);
+    function handleCell(cell) {
+      const idx = [...grid.children].indexOf(cell);
       if (charArrayIdx[idx] === 1) {
         changeColor(cell);
         charArrayIdx[idx]++;
@@ -139,9 +167,8 @@
       }
     }
 
-    // 클릭 + 모바일 터치 이벤트
-    grid.addEventListener('click', (e) => handleCellClick(e.target));
-    grid.addEventListener('touchstart', (e) => handleCellClick(e.target), { passive: true });
+    grid.addEventListener('click', e => handleCell(e.target));
+    grid.addEventListener('touchstart', e => handleCell(e.target), { passive: true });
 
     // 타이머
     let seconds = 0;
@@ -151,14 +178,19 @@
       timer.textContent = seconds;
     }, 1000);
 
-    // 음성 인식 시작
+    // 시작
+    initializeGrid();
+    placeRandomTextSet();
+
+    // 음성 인식
+    const warning = document.getElementById('warning');
     if ('webkitSpeechRecognition' in window) {
       const recognition = new webkitSpeechRecognition();
       recognition.lang = 'ko-KR';
       recognition.continuous = true;
       recognition.interimResults = false;
 
-      recognition.onresult = function (event) {
+      recognition.onresult = (event) => {
         const text = event.results[event.resultIndex][0].transcript;
         [...text].forEach(char => {
           for (let i = 0; i < grid.children.length; i++) {
@@ -172,17 +204,10 @@
         });
       };
 
-      recognition.onerror = (e) => {
-        console.warn("Speech error:", e.error);
-      };
-
-      recognition.onend = () => {
-        recognition.start();
-      };
-
+      recognition.onend = () => recognition.start();
       recognition.start();
     } else {
-      document.getElementById('warning').textContent += " 브라우저가 음성인식을 지원하지 않습니다.";
+      warning.textContent = "⚠️ 이 브라우저는 음성 인식을 지원하지 않습니다.";
     }
   </script>
 </body>
